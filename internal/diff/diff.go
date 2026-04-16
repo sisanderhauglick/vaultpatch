@@ -1,44 +1,40 @@
 package diff
 
-import "github.com/your-org/vaultpatch/internal/vault"
-
-// ChangeType describes the kind of change for a secret key.
-type ChangeType string
+// Type represents the kind of change between two secret maps.
+type Type string
 
 const (
-	Added    ChangeType = "added"
-	Removed  ChangeType = "removed"
-	Modified ChangeType = "modified"
-	Unchanged ChangeType = "unchanged"
+	Added    Type = "added"
+	Removed  Type = "removed"
+	Modified Type = "modified"
 )
 
-// Change represents a single key-level difference between two SecretMaps.
-type Change struct {
-	Key    string
-	Type   ChangeType
-	OldVal string
-	NewVal string
+// Entry describes a single key-level change.
+type Entry struct {
+	Key      string
+	Type     Type
+	OldValue string
+	NewValue string
 }
 
-// Diff computes the difference between a source and target SecretMap.
-// Returns a slice of Change entries for keys that differ.
-func Diff(src, dst vault.SecretMap) []Change {
-	var changes []Change
+// Diff compares a source secret map against a target and returns the
+// ordered list of changes needed to make source look like target.
+func Diff(source, target map[string]string) []Entry {
+	var entries []Entry
 
-	for k, srcVal := range src {
-		dstVal, ok := dst[k]
-		if !ok {
-			changes = append(changes, Change{Key: k, Type: Removed, OldVal: srcVal})
-		} else if srcVal != dstVal {
-			changes = append(changes, Change{Key: k, Type: Modified, OldVal: srcVal, NewVal: dstVal})
+	for k, tv := range target {
+		if sv, ok := source[k]; !ok {
+			entries = append(entries, Entry{Key: k, Type: Added, NewValue: tv})
+		} else if sv != tv {
+			entries = append(entries, Entry{Key: k, Type: Modified, OldValue: sv, NewValue: tv})
 		}
 	}
 
-	for k, dstVal := range dst {
-		if _, ok := src[k]; !ok {
-			changes = append(changes, Change{Key: k, Type: Added, NewVal: dstVal})
+	for k, sv := range source {
+		if _, ok := target[k]; !ok {
+			entries = append(entries, Entry{Key: k, Type: Removed, OldValue: sv})
 		}
 	}
 
-	return changes
+	return entries
 }
