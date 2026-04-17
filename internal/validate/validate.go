@@ -76,3 +76,15 @@ func Validate(path string, secrets map[string]string, rules []Rule) []Violation 
 
 	return violations
 }
+
+// Summary returns a single error summarising all violations, or nil if there are none.
+func Summary(violations []Violation) error {
+	if len(violations) == 0 {
+		return nil
+	}
+	msgs := make([]string, len(violations))
+	for i, v := range violations {
+		msgs[i] = v.Error()
+	}
+	return fmt.Errorf("%d validation violation(s):\n%s", len(violations), strings.Join(msgs, "\n"))
+}
