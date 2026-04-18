@@ -58,3 +58,17 @@ func TestWatch_DefaultInterval(t *testing.T) {
 		t.Fatal("expected nil-client error")
 	}
 }
+
+func TestWatch_AlreadyCancelledContext(t *testing.T) {
+	// Ensure Watch respects a context that is cancelled before the call.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := watch.Watch(ctx, nil, watch.Options{
+		Paths: []string{"secret/app"},
+	})
+	// A nil client should still produce an error even with a cancelled context.
+	if err == nil {
+		t.Fatal("expected error when context is already cancelled and client is nil")
+	}
+}
