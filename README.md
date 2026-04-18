@@ -34,6 +34,12 @@ vaultpatch apply --patch changes.patch --target secret/staging/app
 vaultpatch export --path secret/prod/app --out changes.patch
 ```
 
+**Dry-run an apply to preview changes without writing:**
+
+```bash
+vaultpatch apply --patch changes.patch --target secret/staging/app --dry-run
+```
+
 > Requires `VAULT_ADDR` and `VAULT_TOKEN` environment variables to be set, or a configured `~/.vault-token`.
 
 ---
