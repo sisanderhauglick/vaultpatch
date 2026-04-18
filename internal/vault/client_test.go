@@ -55,3 +55,17 @@ func TestNewClient_InvalidAddr(t *testing.T) {
 	_ = c
 	_ = err
 }
+
+func TestNewClient_EnvAddrOverriddenByExplicit(t *testing.T) {
+	// Explicit parameters should take precedence over environment variables.
+	t.Setenv("VAULT_ADDR", "http://env-addr:8200")
+	t.Setenv("VAULT_TOKEN", "env-token")
+
+	c, err := NewClient("http://127.0.0.1:8200", "explicit-token")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if c == nil {
+		t.Fatal("expected non-nil client")
+	}
+}
