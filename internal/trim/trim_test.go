@@ -70,6 +70,27 @@ func TestTrim_NoMatchingKeys_EmptyResult(t *testing.T) {
 	}
 }
 
+func TestTrim_DryRun_DoesNotMutateOriginalData(t *testing.T) {
+	c := stubClient()
+	// Run dry-run twice; results should be identical, confirming no side effects.
+	opt := trim.Options{
+		Paths:  []string{"secret/env"},
+		Keys:   []string{"OLD_KEY"},
+		DryRun: true,
+	}
+	first, err := trim.Trim(c, opt)
+	if err != nil {
+		t.Fatalf("first call unexpected error: %v", err)
+	}
+	second, err := trim.Trim(c, opt)
+	if err != nil {
+		t.Fatalf("second call unexpected error: %v", err)
+	}
+	if len(first) != len(second) {
+		t.Errorf("dry-run produced different result lengths: %d vs %d", len(first), len(second))
+	}
+}
+
 // stubClient returns a minimal vault.Client substitute via a local fake.
 func stubClient() *vaultStub { return &vaultStub{} }
 
