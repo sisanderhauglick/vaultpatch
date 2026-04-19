@@ -69,3 +69,13 @@ func TestNewClient_EnvAddrOverriddenByExplicit(t *testing.T) {
 		t.Fatal("expected non-nil client")
 	}
 }
+
+func TestNewClient_MissingAddrWithToken(t *testing.T) {
+	// Providing a token but no address should still fail.
+	os.Unsetenv("VAULT_ADDR")
+
+	_, err := NewClient("", "some-token")
+	if err == nil {
+		t.Fatal("expected error when addr is missing but token is provided, got nil")
+	}
+}
