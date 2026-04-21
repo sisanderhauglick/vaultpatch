@@ -73,3 +73,21 @@ func TestLog_EmptyChanges(t *testing.T) {
 		t.Error("expected non-empty output")
 	}
 }
+
+func TestLog_TimestampPresent(t *testing.T) {
+	var buf bytes.Buffer
+	logger := audit.NewLogger(&buf)
+
+	if err := logger.Log("secret/ts", nil, false, false); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var entry audit.Entry
+	if err := json.Unmarshal(buf.Bytes(), &entry); err != nil {
+		t.Fatalf("failed to unmarshal audit entry: %v", err)
+	}
+
+	if entry.Timestamp.IsZero() {
+		t.Error("expected non-zero timestamp in audit entry")
+	}
+}
