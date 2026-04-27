@@ -90,6 +90,24 @@ func TestTruncate_SuffixAppended(t *testing.T) {
 	}
 }
 
+func TestTruncate_ExactMaxLen_Unchanged(t *testing.T) {
+	// A value whose length exactly equals MaxLen should not be truncated.
+	sc := newStubClient(map[string]interface{}{
+		"key": "exactly10c",
+	})
+	results, err := truncate.Truncate(sc, truncate.Options{
+		Paths:  []string{"secret/svc"},
+		MaxLen: 10,
+		DryRun: true,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(results[0].Truncated) != 0 {
+		t.Errorf("expected no truncations for value at exact MaxLen, got %d", len(results[0].Truncated))
+	}
+}
+
 // newStubClient returns a *vault.Client that satisfies the interface used by
 // Truncate by pre-loading a fake path with the provided data.
 func newStubClient(data map[string]interface{}) *vault.Client {
