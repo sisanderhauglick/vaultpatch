@@ -30,6 +30,11 @@ type Result struct {
 	LintedAt   time.Time
 }
 
+// HasViolations reports whether the result contains any violations.
+func (r Result) HasViolations() bool {
+	return len(r.Violations) > 0
+}
+
 // Options controls lint behaviour.
 type Options struct {
 	Paths []string
